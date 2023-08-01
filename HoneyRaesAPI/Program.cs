@@ -55,7 +55,7 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         CustomerId = 3,
         EmployeeId = 1,
         Description = "How many chicken breasts will feed 100 people?",
-        Emergency = false,
+        Emergency = true,
     },    
     new ServiceTicket()
     {
@@ -204,6 +204,13 @@ app.MapPost("/servicetickets/{id}/complete", (int id) =>
 {
     ServiceTicket ticketToComplete = serviceTickets.FirstOrDefault(st => st.Id == id);
     ticketToComplete.DateCompleted = DateTime.Today;
+});
+
+app.MapGet("/servicetickets/emergencies", () =>
+{
+    List<ServiceTicket> serviceTicket = serviceTickets.Where(st => st.Emergency == true && st.DateCompleted == null).ToList();
+ 
+      return serviceTicket;
 });
 
 app.Run();
