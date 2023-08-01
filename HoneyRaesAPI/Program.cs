@@ -209,8 +209,13 @@ app.MapPost("/servicetickets/{id}/complete", (int id) =>
 app.MapGet("/servicetickets/emergencies", () =>
 {
     List<ServiceTicket> serviceTicket = serviceTickets.Where(st => st.Emergency == true && st.DateCompleted == null).ToList();
- 
-      return serviceTicket;
+    return serviceTicket;
+});
+
+app.MapGet("serviceTickets/unassigned", () =>
+{
+    List<ServiceTicket> serviceTicket = serviceTickets.Where(st => st.EmployeeId == 0).ToList();
+    return serviceTicket;
 });
 
 app.Run();
