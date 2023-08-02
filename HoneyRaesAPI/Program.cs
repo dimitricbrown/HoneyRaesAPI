@@ -47,7 +47,7 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 1,
         Description = "Is there meat in the greens?",
         Emergency = false,
-        DateCompleted = new DateTime(2023, 1, 2)
+        DateCompleted = new DateTime(2023, 8, 1)
     },    
     new ServiceTicket()
     {
@@ -79,7 +79,7 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         CustomerId = 1,
         Description = "What are the ingredients in the meatloaf?",
         Emergency = false,
-        DateCompleted = new DateTime(2023, 1, 2)
+        DateCompleted = new DateTime(2021, 1, 2)
     }
 };
 
@@ -215,6 +215,13 @@ app.MapGet("/servicetickets/emergencies", () =>
 app.MapGet("serviceTickets/unassigned", () =>
 {
     List<ServiceTicket> serviceTicket = serviceTickets.Where(st => st.EmployeeId == 0).ToList();
+    return serviceTicket;
+});
+
+app.MapGet("serviceTickets/inactive", () =>
+{
+    DateTime currentYear = DateTime.Now;
+    List<ServiceTicket> serviceTicket = serviceTickets.Where(st => st.DateCompleted != null && st.DateCompleted < currentYear.AddYears(-1)).ToList();
     return serviceTicket;
 });
 
