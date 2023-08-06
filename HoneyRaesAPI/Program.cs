@@ -35,6 +35,12 @@ List<Employee> employees = new List<Employee>
         Id = 2,
         Name = "Carter",
         Specialty = "Assistant"
+    },
+    new Employee()
+    {
+        Id = 3,
+        Name = "Tester",
+        Specialty = "Testing"
     }
 };
 
@@ -47,13 +53,13 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 1,
         Description = "Is there meat in the greens?",
         Emergency = false,
-        DateCompleted = new DateTime(2023, 1, 2)
+        DateCompleted = new DateTime(2023, 8, 1)
     },    
     new ServiceTicket()
     {
         Id = 2,
         CustomerId = 3,
-        EmployeeId = 1,
+        EmployeeId = 2,
         Description = "How many chicken breasts will feed 100 people?",
         Emergency = true,
     },    
@@ -70,16 +76,17 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
     {
         Id = 4,
         CustomerId = 3,
+        EmployeeId = 1,
         Description = "Can we get some fish soon in a couple of weekends?",
         Emergency = true,
     },
     new ServiceTicket()
     {
         Id = 5,
-        CustomerId = 1,
+        CustomerId = 2,
         Description = "What are the ingredients in the meatloaf?",
         Emergency = false,
-        DateCompleted = new DateTime(2023, 1, 2)
+        DateCompleted = new DateTime(2021, 1, 2)
     }
 };
 
@@ -218,5 +225,28 @@ app.MapGet("serviceTickets/unassigned", () =>
     return serviceTicket;
 });
 
+app.MapGet("customers/inactive", () =>
+{
+    DateTime currentYear = DateTime.Now;
+    List<ServiceTicket> closedTickets = serviceTickets.Where(st => st.DateCompleted != null && st.DateCompleted < currentYear.AddYears(-1)).ToList();
+    List<Customer> inactiveCustomers = customers.Where(c => closedTickets.Any(st => st.CustomerId == c.Id)).ToList();
+
+    return inactiveCustomers;
+});
+
+app.MapGet("employees/available", () =>
+{
+    List<ServiceTicket> incompleteTicket = serviceTickets.Where(st => st.DateCompleted == null).ToList();
+    List<Employee> unassignedEmployees = employees.Where(e => incompleteTicket.Any(st => st.EmployeeId != e.Id)).ToList();
+    return unassignedEmployees;
+});
+
+app.MapGet("employees/{id}/customers", (int id) =>
+{
+    Employee employee = employees.FirstOrDefault(e => e.Id == id);
+    List<ServiceTicket> assignedTickets = serviceTickets.Where(st => st.EmployeeId.Equals(id)).ToList();
+    List<Customer> emCustomers = customers.Where(c => assignedTickets.Any(st => st.CustomerId == c.Id)).ToList();
+    return Results.Ok(emCustomers);
+});
+
 app.Run();
- 
